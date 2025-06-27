@@ -17,7 +17,7 @@ SK8DotNetLab/
 
 ### Component Responsibilities
 - **SK8DotNet.Chat**: Blazor Server UI for chat interface, handles user interactions
-- **SK8DotNet.API**: RESTful API backend, integrates with OpenAI for chat completions
+- **SK8DotNet.API**: Minimal API backend, integrates with OpenAI for chat completions
 - **SK8DotNet.API.Tests**: Comprehensive test suite using XUnit framework
 
 ## Development Guidelines
@@ -89,12 +89,21 @@ When making changes, **ALWAYS**:
 
 ### Additional Efficiency Guidelines
 - **Leverage existing infrastructure**: Use configured Application Insights, Docker setup
-- **Follow RESTful principles** for API design
+- **Follow Minimal API patterns** for clean, performance-focused API design
 - **Implement proper HTTP status codes** and error responses
 - **Use built-in ASP.NET Core features** (model binding, validation, middleware)
 - **Optimize for Azure Container Apps** deployment model
 - **Consider SignalR** for real-time chat features if needed
 - **Implement health checks** for monitoring and deployment validation
+
+### Minimal API Best Practices
+- **Use endpoint grouping** with `MapGroup()` for organizing related endpoints
+- **Implement proper parameter binding** using `[FromBody]`, `[FromQuery]`, etc.
+- **Add endpoint metadata** with `.WithName()`, `.WithTags()`, `.WithOpenApi()`
+- **Use endpoint filters** for cross-cutting concerns like validation and logging
+- **Leverage dependency injection** directly in endpoint handlers
+- **Implement proper error handling** with `Results` class for consistent responses
+- **Use typed responses** with `Results<T>` for better API documentation
 
 ### UI Development (Blazor Server)
 - Follow Blazor Server patterns and lifecycle management
@@ -115,31 +124,47 @@ Before submitting any changes:
 
 ## Examples of Preferred Patterns
 
-### API Controller Pattern
+### Minimal API Endpoint Pattern
 ```csharp
-[ApiController]
-[Route("api/[controller]")]
-public class ChatController : ControllerBase
+// Program.cs - Chat endpoints with Semantic Kernel integration
+var chatGroup = app.MapGroup("/api/chat")
+    .WithTags("Chat")
+    .WithOpenApi();
+
+chatGroup.MapPost("/", async (ChatRequest request, IChatService chatService, ILogger<Program> logger) =>
 {
-    private readonly IChatService _chatService;
-    private readonly ILogger<ChatController> _logger;
-
-    public ChatController(IChatService chatService, ILogger<ChatController> logger)
+    try
     {
-        _chatService = chatService;
-        _logger = logger;
-    }
+        if (string.IsNullOrWhiteSpace(request.Message))
+            return Results.BadRequest("Message is required");
 
-    [HttpPost]
-    public async Task<ActionResult<ChatResponse>> SendMessage([FromBody] ChatRequest request)
-    {
-        // Implementation
+        var response = await chatService.GetChatResponseAsync(request.Message);
+        return Results.Ok(new ChatResponse { Response = response });
     }
-}
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Error processing chat request");
+        return Results.Problem("An error occurred processing your request");
+    }
+})
+.WithName("SendChatMessage")
+.WithSummary("Send a chat message and get AI response");
+
+// Health check endpoint
+app.MapGet("/health", () => Results.Ok(new { Status = "Healthy", Timestamp = DateTime.UtcNow }))
+    .WithName("HealthCheck")
+    .WithTags("Health");
 ```
 
 ### Service Registration Pattern
 ```csharp
+// Program.cs - Service registration for Minimal API
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 // Semantic Kernel AI Services
 builder.Services.AddKernel()
     .AddOpenAIChatCompletion("gpt-4", apiKey);
@@ -147,6 +172,20 @@ builder.Services.AddKernel()
 // Application Services  
 builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddHttpClient<IOpenAIService, OpenAIService>();
+
+// Application Insights
+builder.Services.AddApplicationInsightsTelemetry();
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseHttpsRedirection();
 ```
 
 ### Semantic Kernel Service Pattern
