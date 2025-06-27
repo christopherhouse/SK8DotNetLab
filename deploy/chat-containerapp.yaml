@@ -1,0 +1,39 @@
+# Azure Container Apps deployment configuration for SK8DotNet.Chat
+# Use this with: az containerapp create --resource-group <rg> --environment <env> --yaml chat-containerapp.yaml
+
+location: eastus2
+name: sk8dotnet-chat
+resourceGroup: # Set your resource group name
+managedEnvironmentId: # Set your Container Apps Environment resource ID
+properties:
+  configuration:
+    ingress:
+      external: true
+      targetPort: 8080
+      transport: http
+      traffic:
+      - weight: 100
+        latestRevision: true
+    registries: # Configure your container registry
+    - server: # your-registry.azurecr.io
+      identity: # your-managed-identity-resource-id
+  template:
+    containers:
+    - image: # your-registry.azurecr.io/sk8dotnet-chat:latest
+      name: sk8dotnet-chat
+      env:
+      - name: ASPNETCORE_ENVIRONMENT
+        value: "Production"
+      - name: ASPNETCORE_URLS
+        value: "http://+:8080"
+      resources:
+        cpu: 0.5
+        memory: 1.0Gi
+    scale:
+      minReplicas: 1
+      maxReplicas: 10
+      rules:
+      - name: http-scaler
+        http:
+          metadata:
+            concurrentRequests: "100"
