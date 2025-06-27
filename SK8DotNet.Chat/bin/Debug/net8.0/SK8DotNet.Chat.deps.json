@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "SK8DotNet.Chat/1.0.0": {
+        "runtime": {
+          "SK8DotNet.Chat.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "SK8DotNet.Chat/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

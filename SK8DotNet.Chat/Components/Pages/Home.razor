@@ -1,0 +1,183 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.Components.Web
+@rendermode InteractiveServer
+
+<PageTitle>AI Chat Bot 🤖</PageTitle>
+
+<div class="chat-container">
+    <div class="chat-header">
+        <h1 class="chat-title">
+            🤖 AI Assistant
+            <span class="status-indicator online"></span>
+        </h1>
+        <p class="chat-subtitle">Your intelligent conversation partner</p>
+    </div>
+
+    <div class="chat-messages" @ref="messagesContainer">
+        @foreach (var message in messages)
+        {
+            <div class="message @(message.IsUser ? "user-message" : "bot-message")">
+                <div class="message-avatar">
+                    @if (message.IsUser)
+                    {
+                        <span class="avatar-emoji">👤</span>
+                    }
+                    else
+                    {
+                        <span class="avatar-emoji">🤖</span>
+                    }
+                </div>
+                <div class="message-content">
+                    <div class="message-bubble">
+                        @message.Content
+                    </div>
+                    <div class="message-time">
+                        @message.Timestamp.ToString("HH:mm")
+                    </div>
+                </div>
+            </div>
+        }
+        @if (isTyping)
+        {
+            <div class="message bot-message">
+                <div class="message-avatar">
+                    <span class="avatar-emoji">🤖</span>
+                </div>
+                <div class="message-content">
+                    <div class="message-bubble typing-indicator">
+                        <div class="typing-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="chat-input-container">
+        <div class="chat-input">
+            <input @bind="currentMessage" 
+                   @onkeypress="@(async (e) => { if (e.Key == "Enter") await SendMessage(); })"
+                   placeholder="Type your message here... 💬" 
+                   class="message-input"
+                   disabled="@isTyping" />
+            <button @onclick="SendMessage" 
+                    disabled="@(string.IsNullOrWhiteSpace(currentMessage) || isTyping)"
+                    class="send-button">
+                @if (isTyping)
+                {
+                    <span>⏳</span>
+                }
+                else
+                {
+                    <span>🚀</span>
+                }
+            </button>
+        </div>
+        <div class="quick-actions">
+            <button @onclick="@(() => SetQuickMessage("Hello! 👋"))" class="quick-action-btn">👋 Hello</button>
+            <button @onclick="@(() => SetQuickMessage("How are you today? 😊"))" class="quick-action-btn">😊 How are you?</button>
+            <button @onclick="@(() => SetQuickMessage("Tell me a joke! 😄"))" class="quick-action-btn">😄 Tell me a joke</button>
+            <button @onclick="ClearChat" class="quick-action-btn clear-btn">🗑️ Clear Chat</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    private ElementReference messagesContainer;
+    private string currentMessage = "";
+    private bool isTyping = false;
+    private List<ChatMessage> messages = new();
+
+    protected override void OnInitialized()
+    {
+        // Add a welcome message
+        messages.Add(new ChatMessage
+        {
+            Content = "Hello! 👋 I'm your AI assistant. How can I help you today? Feel free to ask me anything!",
+            IsUser = false,
+            Timestamp = DateTime.Now
+        });
+    }
+
+    private async Task SendMessage()
+    {
+        if (string.IsNullOrWhiteSpace(currentMessage) || isTyping)
+            return;
+
+        // Add user message
+        messages.Add(new ChatMessage
+        {
+            Content = currentMessage,
+            IsUser = true,
+            Timestamp = DateTime.Now
+        });
+
+        var userMessage = currentMessage;
+        currentMessage = "";
+        isTyping = true;
+        StateHasChanged();
+        await ScrollToBottom();
+
+        // Simulate AI response (for now, just echo with some processing time)
+        await Task.Delay(1500);
+
+        var responses = new[]
+        {
+            "That's an interesting point! 🤔 I'd love to help you explore that further.",
+            "Great question! 💡 Let me think about that for a moment...",
+            "I understand what you're asking. 😊 Here's my take on it:",
+            "Thanks for sharing that with me! 🙏 That's quite fascinating.",
+            "I appreciate you bringing that up! ✨ It's definitely worth discussing.",
+            "That's a wonderful topic! 🌟 I'm excited to dive into this with you."
+        };
+
+        var random = new Random();
+        var response = responses[random.Next(responses.Length)];
+
+        messages.Add(new ChatMessage
+        {
+            Content = response + " (Note: This is a demo response. The AI integration is coming soon! 🚧)",
+            IsUser = false,
+            Timestamp = DateTime.Now
+        });
+
+        isTyping = false;
+        StateHasChanged();
+        await ScrollToBottom();
+    }
+
+    private void SetQuickMessage(string message)
+    {
+        currentMessage = message;
+        StateHasChanged();
+    }
+
+    private async Task ClearChat()
+    {
+        messages.Clear();
+        messages.Add(new ChatMessage
+        {
+            Content = "Chat cleared! 🧹 How can I assist you now?",
+            IsUser = false,
+            Timestamp = DateTime.Now
+        });
+        StateHasChanged();
+        await ScrollToBottom();
+    }
+
+    private async Task ScrollToBottom()
+    {
+        await Task.Delay(50);
+        await messagesContainer.FocusAsync();
+    }
+
+    public class ChatMessage
+    {
+        public string Content { get; set; } = "";
+        public bool IsUser { get; set; }
+        public DateTime Timestamp { get; set; }
+    }
+}

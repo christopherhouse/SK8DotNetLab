@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SK8DotNet.Chat", "SK8DotNet.Chat\SK8DotNet.Chat.csproj", "{16999E62-0587-4B27-8BF4-C74B18C1FFD4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SK8DotNet.API", "SK8DotNet.API\SK8DotNet.API.csproj", "{F6157AF3-B9D5-48E5-9A65-629A45B94285}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{16999E62-0587-4B27-8BF4-C74B18C1FFD4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{16999E62-0587-4B27-8BF4-C74B18C1FFD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{16999E62-0587-4B27-8BF4-C74B18C1FFD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{16999E62-0587-4B27-8BF4-C74B18C1FFD4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F6157AF3-B9D5-48E5-9A65-629A45B94285}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F6157AF3-B9D5-48E5-9A65-629A45B94285}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F6157AF3-B9D5-48E5-9A65-629A45B94285}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F6157AF3-B9D5-48E5-9A65-629A45B94285}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

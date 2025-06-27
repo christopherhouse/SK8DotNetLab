@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="../buildMultiTargeting/SK8DotNet.Chat.props" />
+</Project>
