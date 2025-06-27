@@ -37,6 +37,7 @@ SK8DotNetLab/
 
 ### NuGet Package Management
 - **ONLY use General Availability (GA) packages** - no beta, prerelease, or alpha versions
+- **Microsoft Semantic Kernel**: Use version 1.58.0 (latest GA) for AI functionality
 - Prefer Microsoft packages for core functionality
 - Keep package versions current but stable
 - Document significant package additions in commit messages
@@ -49,11 +50,14 @@ SK8DotNetLab/
 - Maintain consistent naming conventions across projects
 
 ### AI Integration Context
-- Primary integration target: OpenAI API for chat completions
-- Implement proper error handling and retry logic for API calls
-- Consider rate limiting and token management
+- **Primary AI Framework**: Microsoft Semantic Kernel (latest version 1.58.0) for AI orchestration and chat completions
+- **OpenAI Integration**: Use Semantic Kernel connectors for OpenAI API integration
+- **Required Packages**: Microsoft.SemanticKernel, Microsoft.SemanticKernel.Connectors.OpenAI
+- Implement proper error handling and retry logic for AI service calls
+- Consider rate limiting and token management through Semantic Kernel features
 - Store API keys and sensitive configuration in secure configuration (not hardcoded)
 - Design for scalability and concurrent user sessions
+- Leverage Semantic Kernel's built-in dependency injection patterns
 
 ### Architecture Adherence
 When making changes, **ALWAYS**:
@@ -136,8 +140,34 @@ public class ChatController : ControllerBase
 
 ### Service Registration Pattern
 ```csharp
+// Semantic Kernel AI Services
+builder.Services.AddKernel()
+    .AddOpenAIChatCompletion("gpt-4", apiKey);
+
+// Application Services  
 builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddHttpClient<IOpenAIService, OpenAIService>();
+```
+
+### Semantic Kernel Service Pattern
+```csharp
+public class ChatService : IChatService
+{
+    private readonly Kernel _kernel;
+    private readonly ILogger<ChatService> _logger;
+
+    public ChatService(Kernel kernel, ILogger<ChatService> logger)
+    {
+        _kernel = kernel;
+        _logger = logger;
+    }
+
+    public async Task<string> GetChatResponseAsync(string userMessage)
+    {
+        var result = await _kernel.InvokePromptAsync(userMessage);
+        return result.GetValue<string>() ?? string.Empty;
+    }
+}
 ```
 
 ### XUnit Test Pattern
