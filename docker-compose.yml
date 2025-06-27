@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  sk8dotnet-chat:
+    build:
+      context: ./SK8DotNet.Chat
+      dockerfile: Dockerfile
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+    depends_on:
+      - sk8dotnet-api
+
+  sk8dotnet-api:
+    build:
+      context: ./SK8DotNet.API
+      dockerfile: Dockerfile
+    ports:
+      - "5001:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+
+networks:
+  default:
+    name: sk8dotnet-network

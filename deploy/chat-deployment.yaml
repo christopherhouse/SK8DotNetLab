@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sk8dotnet-chat
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sk8dotnet-chat
+  template:
+    metadata:
+      labels:
+        app: sk8dotnet-chat
+    spec:
+      containers:
+      - name: sk8dotnet-chat
+        image: sk8dotnet-chat:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "Production"
+        - name: ASPNETCORE_URLS
+          value: "http://+:8080"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sk8dotnet-chat-service
+spec:
+  selector:
+    app: sk8dotnet-chat
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
+  type: LoadBalancer
